@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OVA: Modelado 3D en Blender para todos</title>
+<style>
+:root{--bg:#f7f8fb;--surface:#fff;--text:#1d2433;--muted:#4a5568;--brand:#b34700;--brand-d:#8a3600;--accent:#1f5fbf;--line:#d5dae3;--ok:#146c2e;--bad:#b3261e;--side:#1d2433;--sidetext:#eef1f7;--sidehi:#ffb36b;
+color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141c;--surface:#1a2030;--text:#eef1f7;--muted:#b9c1d1;--brand:#ffb36b;--brand-d:#ffd0a1;--accent:#8ab4ff;--line:#33405a;--ok:#6fdc8c;--bad:#ff8a80;--side:#0a0d14;--sidetext:#eef1f7;--sidehi:#ffb36b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10141c;--surface:#1a2030;--text:#eef1f7;--muted:#b9c1d1;--brand:#ffb36b;--brand-d:#ffd0a1;--accent:#8ab4ff;--line:#33405a;--ok:#6fdc8c;--bad:#ff8a80;--side:#0a0d14;--sidetext:#eef1f7;--sidehi:#ffb36b;color-scheme:dark}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font:1.0625rem/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.skip{position:absolute;left:-999px;top:0;background:var(--brand);color:#fff;padding:.6rem 1rem;z-index:100}
+.skip:focus{left:0}
+#menu{position:fixed;left:0;top:0;bottom:0;width:300px;background:var(--side);color:var(--sidetext);overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 1rem) 1rem 1.5rem;z-index:20}
+#menu h2{font-size:1rem;margin:.2rem 0 .8rem;letter-spacing:.04em;text-transform:uppercase}
+#menu ul{list-style:none;margin:0;padding:0}
+#menu a{display:block;color:var(--sidetext);text-decoration:none;padding:.45rem .6rem;border-radius:8px}
+#menu a:hover{background:rgba(255,255,255,.12)}
+#menu a[aria-current="true"]{color:var(--sidehi);font-weight:700;background:rgba(255,255,255,.08)}
+#menu .top>li>a{font-weight:600;margin-top:.35rem}
+#menu .sub{margin-left:1rem;font-size:.93rem;border-left:1px solid rgba(255,255,255,.25)}
+#menu .sub a{padding:.25rem .6rem}
+#menubtn{display:none}
+main{margin-left:300px;padding:1.5rem clamp(1rem,4vw,3rem) 3rem;max-width:1100px}
+header.hero{padding:1rem 0 .5rem}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.15;margin:.2rem 0 .6rem}
+h2{font-size:clamp(1.4rem,3.5vw,1.9rem);margin:0 0 .6rem;color:var(--brand-d)}
+h3{font-size:1.15rem;margin:1.4rem 0 .3rem}
+section{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(1rem,3vw,2rem);margin:1.5rem 0}
+.art{width:100%;height:auto;aspect-ratio:16/6;border-radius:12px;display:block;margin:.4rem 0 1rem;background:#dfe7f5}
+.box{border-left:5px solid var(--brand);background:var(--bg);padding:.7rem 1rem;border-radius:0 10px 10px 0;margin:1rem 0}
+.qche{display:grid;gap:.8rem;grid-template-columns:1fr}
+.qche div{border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem}
+.qche strong{color:var(--brand-d)}
+fieldset{border:1px solid var(--line);border-radius:12px;margin:1rem 0;padding:.8rem 1rem}
+legend{font-weight:700;padding:0 .4rem}
+label{display:block;padding:.5rem .4rem;border-radius:8px;cursor:pointer}
+label:hover{background:var(--bg)}
+input[type=radio]{width:1.15rem;height:1.15rem;margin-right:.6rem;accent-color:var(--accent);vertical-align:-.2rem}
+button.act{background:var(--brand);color:#fff;border:0;border-radius:10px;padding:.8rem 1.4rem;font:inherit;font-weight:700;cursor:pointer;min-height:44px}
+:root[data-theme="dark"] button.act{color:#1d2433}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button.act{color:#1d2433}}
+button.act:hover{background:var(--brand-d)}
+.fb{margin:.4rem 0 0;font-weight:600}.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}
+#score{font-size:1.2rem;font-weight:700;margin-top:1rem}
+footer{color:var(--muted);font-size:.95rem;border-top:1px solid var(--line);padding-top:1rem}
+@media (min-width:640px){.qche{grid-template-columns:1fr 1fr}}
+@media (max-width:1023px){
+#menu{transform:translateX(-100%);transition:transform .25s;width:min(86vw,320px);box-shadow:0 0 30px rgba(0,0,0,.4)}
+#menu.open{transform:none}
+main{margin-left:0;padding-top:4.5rem}
+#menubtn{display:block;position:fixed;top:calc(env(safe-area-inset-top,0px) + .6rem);left:.6rem;z-index:30;background:var(--side);color:var(--sidetext);border:2px solid var(--sidehi);border-radius:10px;padding:.55rem .9rem;font:inherit;font-weight:700;min-height:44px;cursor:pointer}
+}
+@media (min-width:1024px){main{margin-left:320px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}#menu{transition:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<button id="menubtn" aria-expanded="false" aria-controls="menu">☰ Menú</button>
+
+<nav id="menu" aria-label="Menú de contenidos del OVA">
+<h2>Modelado 3D en Blender</h2>
+<ul class="top">
+<li><a href="#presentacion">Presentación del OVA</a></li>
+<li><a href="#s11">1.1 Bienvenido al 3D</a><ul class="sub"><li><a href="#s111">1.1.1 ¿Qué es un modelo 3D?</a></li><li><a href="#s112">1.1.2 ¿Qué es Blender?</a></li><li><a href="#s113">1.1.3 Para qué sirve</a></li></ul></li>
+<li><a href="#s12">1.2 Conociendo Blender</a><ul class="sub"><li><a href="#s121">1.2.1 La pantalla</a></li><li><a href="#s122">1.2.2 Moverte en el espacio</a></li><li><a href="#s123">1.2.3 Atajos esenciales</a></li></ul></li>
+<li><a href="#s13">1.3 Objetos y transformaciones</a><ul class="sub"><li><a href="#s131">1.3.1 Formas básicas</a></li><li><a href="#s132">1.3.2 Mover, rotar, escalar</a></li><li><a href="#s133">1.3.3 Los ejes X, Y, Z</a></li></ul></li>
+<li><a href="#s14">1.4 Modo edición</a><ul class="sub"><li><a href="#s141">1.4.1 Puntos, líneas y caras</a></li><li><a href="#s142">1.4.2 Herramientas clave</a></li><li><a href="#s143">1.4.3 Modificadores</a></li></ul></li>
+<li><a href="#s15">1.5 Color, luz y render</a><ul class="sub"><li><a href="#s151">1.5.1 Materiales</a></li><li><a href="#s152">1.5.2 Luces y cámara</a></li><li><a href="#s153">1.5.3 Tu primera imagen</a></li></ul></li>
+<li><a href="#actividades">Actividades de aprendizaje</a></li>
+</ul>
+</nav>
+
+<main id="contenido" tabindex="-1">
+<header class="hero">
+<p style="margin:0;color:var(--muted)">Objeto Virtual de Aprendizaje (OVA)</p>
+<h1>Modelado 3D en Blender: empieza desde cero</h1>
+<p>Para quien nunca ha tocado un programa 3D: sin tecnicismos, paso a paso y a tu ritmo.</p>
+</header>
+
+<section id="presentacion" aria-labelledby="t-pres">
+<h2 id="t-pres">Presentación del OVA</h2>
+<p>Este recurso nos introduce en el mundo del modelado 3D. Fue creado por <strong>Diego Enrique Peña Lopez</strong> bajo la metodología <strong>QCHE</strong> del Dr. Raúl E. Rodríguez Ibáñez.</p>
+<div class="qche" role="list" aria-label="Metodología QCHE">
+<div role="listitem"><strong>Q · ¿Qué voy a hacer?</strong><br>Aprenderás qué es el modelado 3D y cuáles son sus piezas básicas.</div>
+<div role="listitem"><strong>C · ¿Cómo lo voy a hacer?</strong><br>Leyendo cada tema, mirando las imágenes y practicando con Blender, que es gratis.</div>
+<div role="listitem"><strong>H · Hacer</strong><br>Crearás tus primeros objetos y moverás, cambiarás y colorearás formas.</div>
+<div role="listitem"><strong>E · Evaluar</strong><br>Resolverás un cuestionario de 5 preguntas para ver cuánto aprendiste.</div>
+</div>
+<p>Este OVA se publica bajo licenciamiento <strong>Creative Commons</strong>: puedes compartirlo y adaptarlo dando el crédito correspondiente al autor.</p>
+<p>Está pensado para personas de 16 a 85 años, con o sin estudios previos. Usa el menú de la izquierda para ir a cualquier tema (en el celular, toca «Menú»).</p>
+</section>
+
+<section id="s11" aria-labelledby="t11">
+<h2 id="t11">1.1 Bienvenido al mundo 3D</h2>
+<svg class="art" role="img" aria-label="Ilustración de un cubo en tres dimensiones sobre un fondo azul" viewBox="0 0 800 300"><defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#cfe0ff"/><stop offset="1" stop-color="#f2e3ff"/></linearGradient></defs><rect width="800" height="300" fill="url(#g1)"/><g transform="translate(400 150)"><polygon points="0,-90 90,-45 0,0 -90,-45" fill="#ffd9b0"/><polygon points="-90,-45 0,0 0,100 -90,55" fill="#e8873a"/><polygon points="90,-45 0,0 0,100 90,55" fill="#b34700"/></g><g fill="#1f5fbf"><circle cx="310" cy="105" r="7"/><circle cx="400" cy="60" r="7"/><circle cx="490" cy="105" r="7"/></g></svg>
+<h3 id="s111">1.1.1 ¿Qué es un modelo 3D?</h3>
+<p>Es una versión digital de un objeto con alto, ancho y profundidad, como una escultura que vive dentro del computador. Puedes darle vueltas y verla desde todos los lados.</p>
+<h3 id="s112">1.1.2 ¿Qué es Blender?</h3>
+<p>Blender es un programa gratuito y de código abierto para crear gráficos 3D. Lo usan estudiantes, artistas y también estudios profesionales.</p>
+<h3 id="s113">1.1.3 ¿Para qué sirve?</h3>
+<p>Para hacer videojuegos, películas animadas, piezas para impresión 3D, arquitectura, productos y material educativo.</p>
+<div class="box"><strong>Idea clave:</strong> modelar es como trabajar con arcilla digital: empiezas con una forma simple y la vas moldeando.</div>
+</section>
+
+<section id="s12" aria-labelledby="t12">
+<h2 id="t12">1.2 Conociendo Blender</h2>
+<svg class="art" role="img" aria-label="Ilustración de la pantalla de un programa con paneles y una vista central" viewBox="0 0 800 300"><rect width="800" height="300" fill="#2b3245"/><rect x="20" y="20" width="560" height="200" rx="8" fill="#47506a"/><rect x="595" y="20" width="185" height="200" rx="8" fill="#3a4259"/><rect x="20" y="232" width="760" height="48" rx="8" fill="#3a4259"/><polygon points="300,90 360,120 300,150 240,120" fill="#ffd9b0"/><polygon points="240,120 300,150 300,200 240,170" fill="#e8873a"/><polygon points="360,120 300,150 300,200 360,170" fill="#b34700"/><g stroke="#8a93ab"><line x1="610" y1="50" x2="765" y2="50"/><line x1="610" y1="80" x2="765" y2="80"/><line x1="610" y1="110" x2="765" y2="110"/></g></svg>
+<h3 id="s121">1.2.1 La pantalla</h3>
+<p>Al abrir Blender verás un cubo en el centro (la <em>vista 3D</em>), una lista de objetos a la derecha y una línea de tiempo abajo. No necesitas usar todo desde el inicio.</p>
+<h3 id="s122">1.2.2 Moverte en el espacio</h3>
+<p>Con el botón central del mouse giras la vista. Con la rueda te acercas o alejas. Si usas un portátil sin mouse, el menú «Vista» tiene opciones equivalentes.</p>
+<h3 id="s123">1.2.3 Atajos esenciales</h3>
+<p>Tres que te servirán siempre: <strong>Tab</strong> cambia entre ver el objeto y editarlo; <strong>Ctrl + Z</strong> deshace un error; <strong>Ctrl + S</strong> guarda tu trabajo.</p>
+</section>
+
+<section id="s13" aria-labelledby="t13">
+<h2 id="t13">1.3 Objetos y transformaciones</h2>
+<svg class="art" role="img" aria-label="Ilustración de un cubo, una esfera y un cono sobre una cuadrícula" viewBox="0 0 800 300"><rect width="800" height="300" fill="#e7f1e9"/><g stroke="#b5c9ba"><line x1="0" y1="230" x2="800" y2="230"/><line x1="0" y1="262" x2="800" y2="262"/><line x1="400" y1="200" x2="400" y2="300"/></g><rect x="130" y="110" width="100" height="100" fill="#e8873a"/><circle cx="400" cy="160" r="52" fill="#1f5fbf"/><polygon points="600,100 660,210 540,210" fill="#8a3600"/></svg>
+<h3 id="s131">1.3.1 Formas básicas</h3>
+<p>Casi todo se construye con formas simples: cubo, esfera, cilindro y cono. Se agregan desde el menú <strong>Añadir → Malla</strong>. Un robot, por ejemplo, es una combinación de cajas y cilindros.</p>
+<h3 id="s132">1.3.2 Mover, rotar y escalar</h3>
+<p>Son las tres acciones principales: <strong>mover</strong> (tecla G), <strong>rotar</strong> (tecla R) y <strong>escalar</strong> o cambiar el tamaño (tecla S).</p>
+<h3 id="s133">1.3.3 Los ejes X, Y, Z</h3>
+<p>Son las tres direcciones del espacio: X (izquierda–derecha, rojo), Y (adelante–atrás, verde) y Z (arriba–abajo, azul). Si presionas una de esas letras después de mover, el objeto se desplaza solo en esa dirección.</p>
+</section>
+
+<section id="s14" aria-labelledby="t14">
+<h2 id="t14">1.4 Modo edición: dándole forma</h2>
+<svg class="art" role="img" aria-label="Ilustración de una malla de líneas con puntos resaltados en las esquinas" viewBox="0 0 800 300"><rect width="800" height="300" fill="#f3ecff"/><g stroke="#5b3fa0" stroke-width="2" fill="none"><polygon points="260,90 540,90 600,200 200,200"/><line x1="330" y1="90" x2="300" y2="200"/><line x1="400" y1="90" x2="400" y2="200"/><line x1="470" y1="90" x2="500" y2="200"/><line x1="230" y1="145" x2="570" y2="145"/></g><g fill="#e8873a"><circle cx="260" cy="90" r="8"/><circle cx="540" cy="90" r="8"/><circle cx="600" cy="200" r="8"/><circle cx="200" cy="200" r="8"/></g></svg>
+<h3 id="s141">1.4.1 Puntos, líneas y caras</h3>
+<p>Todo objeto 3D está hecho de <strong>vértices</strong> (puntos), <strong>aristas</strong> (líneas entre dos puntos) y <strong>caras</strong> (superficies cerradas por líneas). Al editar estos tres elementos cambias la forma.</p>
+<h3 id="s142">1.4.2 Herramientas clave</h3>
+<p><strong>Extruir</strong> (tecla E) estira una cara hacia afuera, como jalar masa. <strong>Biselar</strong> (Ctrl + B) suaviza las esquinas. <strong>Cortar en bucle</strong> (Ctrl + R) añade líneas para más detalle.</p>
+<h3 id="s143">1.4.3 Modificadores</h3>
+<p>Son ayudas automáticas. Por ejemplo, <em>Subdivisión</em> vuelve una forma cuadrada más redondeada y <em>Espejo</em> copia lo que haces en un lado hacia el otro.</p>
+<div class="box"><strong>Truco:</strong> modela la mitad de un personaje y deja que el modificador Espejo haga la otra mitad.</div>
+</section>
+
+<section id="s15" aria-labelledby="t15">
+<h2 id="t15">1.5 Color, luz y render</h2>
+<svg class="art" role="img" aria-label="Ilustración de una esfera de color iluminada por una lámpara con rayos de luz" viewBox="0 0 800 300"><defs><radialGradient id="g5" cx=".35" cy=".3"><stop offset="0" stop-color="#ffe3c2"/><stop offset="1" stop-color="#b34700"/></radialGradient></defs><rect width="800" height="300" fill="#1d2433"/><circle cx="420" cy="160" r="90" fill="url(#g5)"/><circle cx="150" cy="60" r="22" fill="#ffd34d"/><g stroke="#ffd34d" stroke-width="3"><line x1="170" y1="78" x2="330" y2="120"/><line x1="165" y1="85" x2="310" y2="170"/><line x1="150" y1="90" x2="250" y2="200"/></g></svg>
+<h3 id="s151">1.5.1 Materiales</h3>
+<p>Un material define cómo se ve la superficie: su color, si brilla como metal o es opaca como la madera. Se asigna en la pestaña de materiales.</p>
+<h3 id="s152">1.5.2 Luces y cámara</h3>
+<p>Como en una sesión de fotos, necesitas una <strong>luz</strong> para ver y una <strong>cámara</strong> que decide desde dónde se toma la imagen.</p>
+<h3 id="s153">1.5.3 Tu primera imagen (render)</h3>
+<p>El <em>render</em> es la «fotografía final» de tu escena. Presiona <strong>F12</strong>, espera unos segundos y guarda la imagen desde el menú <strong>Imagen → Guardar como</strong>.</p>
+</section>
+
+<section id="actividades" aria-labelledby="tact">
+<h2 id="tact">Actividades de aprendizaje</h2>
+<p>Elige una sola respuesta por pregunta y luego presiona «Revisar respuestas». Puedes intentarlo las veces que quieras.</p>
+<div id="quiz"></div>
+<button class="act" id="check" type="button">Revisar respuestas</button>
+<p id="score" role="status" aria-live="polite"></p>
+</section>
+
+<footer>
+<p>OVA «Modelado 3D en Blender» · Autor: Diego Enrique Peña Lopez · Metodología QCHE (Dr. Raúl E. Rodríguez Ibáñez) · Licencia Creative Commons. Las ilustraciones son gráficos vectoriales; puedes reemplazarlas por imágenes generadas con IA conservando el texto alternativo.</p>
+</footer>
+</main>
+
+<script>
+var Q=[
+{q:"¿Qué es Blender?",o:["Un programa gratuito para crear gráficos 3D","Un juego de computador","Una red social","Un editor de texto"],a:0,f:"Blender es gratuito y de código abierto."},
+{q:"¿Qué tecla se usa para cambiar entre ver y editar un objeto?",o:["Espacio","Tab","Enter","Borrar"],a:1,f:"Tab alterna entre modo objeto y modo edición."},
+{q:"¿Cuáles son las tres transformaciones básicas de un objeto?",o:["Copiar, pegar y borrar","Abrir, guardar y cerrar","Mover, rotar y escalar","Pintar, cortar y unir"],a:2,f:"Mover (G), rotar (R) y escalar (S)."},
+{q:"¿De qué están hechos los modelos 3D en modo edición?",o:["Solo de colores","Vértices, aristas y caras","Solo de texturas","Fotografías"],a:1,f:"Puntos, líneas y superficies forman la malla."},
+{q:"¿Cómo se llama la «fotografía final» de una escena 3D?",o:["Render","Atajo","Eje","Modificador"],a:0,f:"El render se genera con F12."}];
+var box=document.getElementById("quiz");
+Q.forEach(function(p,i){
+var fs=document.createElement("fieldset");
+var h='<legend>'+(i+1)+'. '+p.q+'</legend>';
+p.o.forEach(function(t,j){h+='<label><input type="radio" name="q'+i+'" value="'+j+'"> '+t+'</label>'});
+h+='<p class="fb" id="fb'+i+'"></p>';
+fs.innerHTML=h;box.appendChild(fs);});
+document.getElementById("check").addEventListener("click",function(){
+var s=0,un=0;
+Q.forEach(function(p,i){
+var sel=document.querySelector('input[name="q'+i+'"]:checked');
+var fb=document.getElementById("fb"+i);
+if(!sel){fb.textContent="Aún no respondes esta pregunta.";fb.className="fb";un++;return;}
+if(+sel.value===p.a){s++;fb.textContent="✔ Correcto. "+p.f;fb.className="fb ok";}
+else{fb.textContent="✘ Casi. La respuesta correcta es: "+p.o[p.a]+". "+p.f;fb.className="fb bad";}});
+document.getElementById("score").textContent="Obtuviste "+s+" de 5 respuestas correctas."+(un?" Te faltan "+un+" por responder.":(s===5?" ¡Excelente trabajo!":" ¡Repasa los temas y vuelve a intentarlo!"));});
+var mb=document.getElementById("menubtn"),mn=document.getElementById("menu");
+function setM(o){mn.classList.toggle("open",o);mb.setAttribute("aria-expanded",o)}
+mb.addEventListener("click",function(){setM(!mn.classList.contains("open"))});
+mn.addEventListener("click",function(e){if(e.target.tagName==="A"&&window.innerWidth<1024)setM(false)});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){setM(false);mb.focus()}});
+var links=[].slice.call(mn.querySelectorAll("ul.top>li>a"));
+if("IntersectionObserver" in window){
+var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){links.forEach(function(l){l.removeAttribute("aria-current")});
+var l=mn.querySelector('a[href="#'+en.target.id+'"]');if(l)l.setAttribute("aria-current","true");}})},{rootMargin:"-30% 0px -60% 0px"});
+document.querySelectorAll("main section").forEach(function(s){io.observe(s)});}
+</script>
+</body>
+</html>
